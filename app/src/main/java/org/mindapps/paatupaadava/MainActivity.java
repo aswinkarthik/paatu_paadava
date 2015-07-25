@@ -3,7 +3,6 @@ package org.mindapps.paatupaadava;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentFilter;
-import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
@@ -86,7 +85,7 @@ public class MainActivity extends Activity  implements ChannelListener{
 
     public void broadcastMessageToClients(View view) {
         Log.i("Button-click", "I clicked broadcast");
-        if (receiver.getNetworkInfo().isConnected()) {
+        if (receiver.isConnected()) {
             ConnectionInfoListener fileTransferAdapter = new FileTransferAdapter();
             manager.requestConnectionInfo(channel, fileTransferAdapter);
         } else {

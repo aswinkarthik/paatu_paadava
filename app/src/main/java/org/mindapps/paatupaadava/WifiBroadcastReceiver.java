@@ -5,9 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
-import android.os.Parcelable;
 import android.util.Log;
 
 public class WifiBroadcastReceiver extends BroadcastReceiver {
@@ -17,8 +15,8 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
     private PeerListListener peerListListener = new PeerList();
     private NetworkInfo networkInfo;
 
-    public NetworkInfo getNetworkInfo() {
-        return networkInfo;
+    public boolean isConnected() {
+        return networkInfo.isConnected();
     }
 
     public WifiBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel) {
@@ -43,10 +41,6 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
             if (manager != null) {
                 this.networkInfo = intent
                         .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
-
-
-//button clicked
-
             }
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {

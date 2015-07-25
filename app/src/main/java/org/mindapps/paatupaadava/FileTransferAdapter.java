@@ -11,6 +11,7 @@ import java.net.Socket;
 
 public class FileTransferAdapter implements WifiP2pManager.ConnectionInfoListener {
     private int PORT = 7711;
+    private Socket socket;
 
     @Override
     public void onConnectionInfoAvailable(WifiP2pInfo info) {
@@ -22,12 +23,23 @@ public class FileTransferAdapter implements WifiP2pManager.ConnectionInfoListene
             try {
                 Log.i("Client","Client socket created");
                 Log.i("Client","Host address "+hostAddress+" port "+PORT);
-                Socket socket = new Socket(hostAddress, PORT);
+
+                socket = new Socket(hostAddress, PORT);
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
                 String line = bufferedReader.readLine();
+
                 Log.i("Broadcast-Msg", line);
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                if(socket != null && socket.isConnected()) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 
