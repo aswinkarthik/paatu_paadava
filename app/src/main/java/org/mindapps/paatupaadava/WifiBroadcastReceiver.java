@@ -10,6 +10,8 @@ import android.util.Log;
 
 public class WifiBroadcastReceiver extends BroadcastReceiver {
 
+    private final String TAG = this.getClass().getName();
+
     private WifiP2pManager manager;
     private final WifiP2pManager.Channel channel;
     private PeerListListener peerListListener = new PeerList();
@@ -34,12 +36,12 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
                 break;
             case WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION:
                 if (manager != null) {
-                    Log.i("App-log", "P2P Change Happened");
+                    Log.i(TAG, "P2P Change Happened");
                     manager.requestPeers(channel, peerListListener);
                 }
                 break;
             case WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION:
-                Log.i("App-log", "Wifi P2P Connection changed action. Network info");
+                Log.i(TAG, "Wifi P2P Connection changed action. Network info");
 
                 if (manager != null) {
                     this.networkInfo = intent
@@ -48,7 +50,7 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
 
                 break;
             case WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION:
-                Log.i("App-log", "Wifi P2P this device changed");
+                Log.i(TAG, "Wifi P2P this device changed");
                 break;
         }
     }

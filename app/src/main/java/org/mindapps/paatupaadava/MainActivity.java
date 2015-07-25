@@ -2,11 +2,12 @@ package org.mindapps.paatupaadava;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
-import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -14,19 +15,40 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.mindapps.paatupaadava.utils.MP3Player;
 
-public class MainActivity extends Activity  implements ChannelListener{
+import java.io.IOException;
 
-    private final IntentFilter intentFilter =  new IntentFilter();
+import static android.content.Intent.ACTION_PICK;
+import static android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+
+
+public class MainActivity extends Activity implements ChannelListener {
+
+    // Constants
+    private final IntentFilter intentFilter = new IntentFilter();
+    private final int SELECT_SONG_REQUEST_CODE = 10;
+
+    // Related to p2p connections
     private WifiBroadcastReceiver receiver;
     private WifiP2pManager manager;
     private Channel channel;
+
+    //Models & Datastore for this activity
+    private Uri selectedSong = null;
+
+    //Utils
+    private MP3Player player;
+
+    //Logging
+    private final String TAG = this.getClass().getName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Sockets wont work without these
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
@@ -37,28 +59,15 @@ public class MainActivity extends Activity  implements ChannelListener{
 
         manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         channel = manager.initialize(this, getMainLooper(), null);
-//        discoverPeers(manager, channel);
-    }
-
-    private void discoverPeers(WifiP2pManager mManager, Channel mChannel) {
-        mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() {
-                Log.i("App-Log", "Discover peer was successful");
-            }
-
-            @Override
-            public void onFailure(int reason) {
-                Log.d("App-Log", "I failed :( ");
-            }
-        });
+        player = new MP3Player();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         receiver = new WifiBroadcastReceiver(manager, channel);
-        registerReceiver(receiver,intentFilter);
+
+        registerReceiver(receiver, intentFilter);
     }
 
     @Override
@@ -83,18 +92,55 @@ public class MainActivity extends Activity  implements ChannelListener{
         return super.onOptionsItemSelected(item);
     }
 
-    public void broadcastMessageToClients(View view) {
-        Log.i("Button-click", "I clicked broadcast");
-        if (receiver.isConnected()) {
-            ConnectionInfoListener fileTransferAdapter = new FileTransferAdapter();
-            manager.requestConnectionInfo(channel, fileTransferAdapter);
-        } else {
-            Log.i("Button-click","Connection not established");
-        }
-    }
-
     @Override
     public void onChannelDisconnected() {
 
+    }
+
+    public void selectSong(View view) {
+
+        Log.i(TAG, "Song selection in progress");
+
+        Intent intent = new Intent(ACTION_PICK, EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, SELECT_SONG_REQUEST_CODE);
+    }
+
+    public void sendFile(View view) {
+
+    }
+
+    public void schedulePlay(View view) {
+
+    }
+
+
+    //activityResultForSelectSong
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i(TAG, "On activity result for request code " + requestCode + " with status " + resultCode + " and data " + data);
+
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case SELECT_SONG_REQUEST_CODE:
+                    this.selectedSong = data.getData();
+                    Log.i(TAG, "Song file path " + selectedSong.getPath());
+
+                    try {
+                        player.playSong(selectedSong, getApplicationContext());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    break;
+            }
+        }
+
+    }
+
+
+    public void scheduleStop(View view) {
+        Log.i(TAG, "scheduling stop");
+        player.stopSongIfAnyPlaying();
     }
 }
