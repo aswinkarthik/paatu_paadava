@@ -8,13 +8,15 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
 
+import org.mindapps.paatupaadava.utils.NetworkAdapter;
+
 public class WifiBroadcastReceiver extends BroadcastReceiver {
 
     private final String TAG = this.getClass().getName();
 
     private WifiP2pManager manager;
     private final WifiP2pManager.Channel channel;
-    private PeerListListener peerListListener = new PeerList();
+    private PeerListListener networkAdapter = new NetworkAdapter();
     private NetworkInfo networkInfo;
 
     public boolean isConnected() {
@@ -37,7 +39,7 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
             case WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION:
                 if (manager != null) {
                     Log.i(TAG, "P2P Change Happened");
-                    manager.requestPeers(channel, peerListListener);
+                    manager.requestPeers(channel, networkAdapter);
                 }
                 break;
             case WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION:

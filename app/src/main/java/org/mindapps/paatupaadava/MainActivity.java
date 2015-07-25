@@ -16,8 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import org.mindapps.paatupaadava.utils.MP3Player;
-
-import java.io.IOException;
+import org.mindapps.paatupaadava.utils.NetworkAdapter;
 
 import static android.content.Intent.ACTION_PICK;
 import static android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -39,6 +38,7 @@ public class MainActivity extends Activity implements ChannelListener {
 
     //Utils
     private MP3Player player;
+    private NetworkAdapter networkAdapter;
 
     //Logging
     private final String TAG = this.getClass().getName();
@@ -59,7 +59,9 @@ public class MainActivity extends Activity implements ChannelListener {
 
         manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         channel = manager.initialize(this, getMainLooper(), null);
+
         player = new MP3Player();
+        networkAdapter = new NetworkAdapter();
     }
 
     @Override
@@ -105,10 +107,6 @@ public class MainActivity extends Activity implements ChannelListener {
         startActivityForResult(intent, SELECT_SONG_REQUEST_CODE);
     }
 
-    public void sendFile(View view) {
-
-    }
-
     public void schedulePlay(View view) {
 
     }
@@ -125,13 +123,7 @@ public class MainActivity extends Activity implements ChannelListener {
                 case SELECT_SONG_REQUEST_CODE:
                     this.selectedSong = data.getData();
                     Log.i(TAG, "Song file path " + selectedSong.getPath());
-
-                    try {
-                        player.playSong(selectedSong, getApplicationContext());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
+                    networkAdapter.sendFileToPeers(MainActivity.this, data.getData());
                     break;
             }
         }
