@@ -1,4 +1,4 @@
-package org.mindapps.paatupaadava;
+package org.mindapps.paatupaadava.server;
 
 import android.util.Log;
 

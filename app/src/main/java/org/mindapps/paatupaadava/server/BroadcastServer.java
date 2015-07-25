@@ -1,4 +1,4 @@
-package org.mindapps.paatupaadava;
+package org.mindapps.paatupaadava.server;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -8,7 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class BroadcastServer extends AsyncTask<Void, Void, Void> {
-    private int PORT = 7711;
+    public static int PORT = 7778;
     private ServerSocket serverSocket;
     private String TAG = this.getClass().getName();
 
