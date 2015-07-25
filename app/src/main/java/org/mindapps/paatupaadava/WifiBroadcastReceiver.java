@@ -28,23 +28,28 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
 
-        if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
+        switch (action) {
+            case WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION:
 
-        } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
-            if (manager != null) {
-                Log.i("App-log", "P2P Change Happened");
-                manager.requestPeers(channel, peerListListener);
-            }
-        } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
-            Log.i("App-log", "Wifi P2P Connection changed action. Network info");
+                break;
+            case WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION:
+                if (manager != null) {
+                    Log.i("App-log", "P2P Change Happened");
+                    manager.requestPeers(channel, peerListListener);
+                }
+                break;
+            case WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION:
+                Log.i("App-log", "Wifi P2P Connection changed action. Network info");
 
-            if (manager != null) {
-                this.networkInfo = intent
-                        .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
-            }
+                if (manager != null) {
+                    this.networkInfo = intent
+                            .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+                }
 
-        } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
-            Log.i("App-log", "Wifi P2P this device changed");
+                break;
+            case WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION:
+                Log.i("App-log", "Wifi P2P this device changed");
+                break;
         }
     }
 }
