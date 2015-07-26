@@ -1,4 +1,4 @@
-package org.mindapps.paatupaadava;
+package org.mindapps.paatupaadava.p2p;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
