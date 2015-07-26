@@ -11,7 +11,9 @@ import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import org.mindapps.paatupaadava.MainActivity;
 import org.mindapps.paatupaadava.async.AsyncSendFileTask;
+import org.mindapps.paatupaadava.async.AsyncSendTimeTask;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -19,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -71,4 +74,11 @@ public class NetworkAdapter implements WifiP2pManager.PeerListListener {
     }
 
 
+    public void scheduleTimeToClient(Context context, Long scheduleTime, Iterator<String> clientIpPoolsIterator) {
+        Date now = new Date();
+        now.setTime(scheduleTime);
+        Log.i(TAG, "Scheduling for " + now);
+
+        new AsyncSendTimeTask(scheduleTime, context,clientIpPoolsIterator).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
 }

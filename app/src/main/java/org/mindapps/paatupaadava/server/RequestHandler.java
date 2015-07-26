@@ -3,23 +3,21 @@ package org.mindapps.paatupaadava.server;
 import android.util.Log;
 
 import org.mindapps.paatupaadava.MainActivity;
-import org.mindapps.paatupaadava.utils.MP3Player;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class RequestHandler extends Thread {
 
-    public static int IP_DISCOVERY = 1;
-    public static int INCOMING_FILE = 2;
-    public static String ENCODING = "UTF-8";
+    public final static int IP_DISCOVERY = 1;
+    public final static int INCOMING_FILE = 2;
+    public final static int SYNC_TIME = 3;
+    public final static String ENCODING = "UTF-8";
 
 
     private final Socket socket;
@@ -41,20 +39,27 @@ public class RequestHandler extends Thread {
 
             int command = in.readInt();
             Log.i(TAG, "Request type " + command);
-            byte[] dataFromStream = getDataFromStream(in);
+            byte[] dataFromStream;
 
             switch (command) {
-                case 1:
+                case IP_DISCOVERY:
                     //Handshake to report IP Address
+                    dataFromStream = getDataFromStream(in);
                     String ipAddress = new String(dataFromStream, ENCODING);
                     Log.i(TAG, "IP Discovery " + ipAddress);
                     activity.addToClientIpPool(ipAddress);
                     break;
-                case 2:
+                case INCOMING_FILE:
                     //File Transfer
                     Log.i(TAG, "File transfer initiated ");
+                    dataFromStream = getDataFromStream(in);
                     storeToTempFile(dataFromStream);
                     break;
+                case SYNC_TIME:
+                    //Scheduling time
+                    Log.i(TAG, "Scheduling play");
+                    long scheduledTime = in.readLong();
+                    activity.scheduleSong(scheduledTime);
             }
 
         } catch (IOException e) {

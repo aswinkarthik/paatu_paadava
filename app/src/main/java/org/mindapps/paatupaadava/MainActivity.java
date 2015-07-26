@@ -19,13 +19,19 @@ import org.mindapps.paatupaadava.utils.MP3Player;
 import org.mindapps.paatupaadava.utils.NetworkAdapter;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static android.content.Intent.ACTION_PICK;
 import static android.os.AsyncTask.THREAD_POOL_EXECUTOR;
@@ -96,6 +102,12 @@ public class MainActivity extends Activity implements ChannelListener {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (downloadedSong != null) downloadedSong.delete();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
@@ -125,7 +137,9 @@ public class MainActivity extends Activity implements ChannelListener {
     }
 
     public void schedulePlay(View view) {
-
+        Date now = new Date();
+        now.setTime(now.getTime() + 4000);
+        networkAdapter.scheduleTimeToClient(MainActivity.this, now.getTime(), this.getClientIpPoolsIterator());
     }
 
 
@@ -178,5 +192,20 @@ public class MainActivity extends Activity implements ChannelListener {
     //Get all ips
     synchronized public Iterator<String> getClientIpPoolsIterator(){
         return clientIpPool.iterator();
+    }
+
+    public void scheduleSong(long scheduledTime) {
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        Log.i(TAG, "Scheduling song");
+        scheduler.schedule(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    player.playSong(downloadedSong);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, scheduledTime - (new Date()).getTime(), TimeUnit.MILLISECONDS);
     }
 }
