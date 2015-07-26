@@ -1,6 +1,5 @@
 package org.mindapps.paatupaadava.p2p;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,7 +8,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
 
-import org.mindapps.paatupaadava.p2p.IpDiscovery;
+import org.mindapps.paatupaadava.MainActivity;
 import org.mindapps.paatupaadava.utils.NetworkAdapter;
 
 public class WifiBroadcastReceiver extends BroadcastReceiver {
@@ -22,7 +21,7 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
     private NetworkInfo networkInfo;
     private IpDiscovery ipDiscovery;
 
-    public WifiBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, NetworkAdapter networkAdapter, Activity activity) {
+    public WifiBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, NetworkAdapter networkAdapter, MainActivity activity) {
         this.manager = manager;
         this.channel = channel;
         this.networkAdapter = networkAdapter;

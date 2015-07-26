@@ -1,14 +1,11 @@
 package org.mindapps.paatupaadava.p2p;
 
-import android.app.Activity;
-import android.content.Context;
-import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.text.format.Formatter;
 import android.util.Log;
 
 import org.apache.http.conn.util.InetAddressUtils;
+import org.mindapps.paatupaadava.MainActivity;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -25,10 +22,10 @@ import static org.mindapps.paatupaadava.server.Server.PORT;
 
 public class IpDiscovery implements WifiP2pManager.ConnectionInfoListener {
 
-    private Activity activity;
+    private MainActivity activity;
     private String TAG = this.getClass().getName();
 
-    public IpDiscovery(Activity activity) {
+    public IpDiscovery(MainActivity activity) {
         this.activity = activity;
     }
 
@@ -56,6 +53,8 @@ public class IpDiscovery implements WifiP2pManager.ConnectionInfoListener {
                 e.printStackTrace();
             }
 
+        } else if (info.groupFormed && info.isGroupOwner) {
+            activity.setTextView("Group owner");
         }
     }
 

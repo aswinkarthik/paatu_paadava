@@ -29,7 +29,7 @@ public class AsyncSendTimeTask extends AsyncTask<Void, Integer, Boolean>{
     @Override
     protected Boolean doInBackground(Void... params) {
         Log.i(TAG, "Lets download some song");
-        Long delay = 50L;
+        Long delay = 76L;
         int count = 0;
         while (clientIpPoolsIterator.hasNext()) {
             String peer = clientIpPoolsIterator.next();
@@ -38,9 +38,10 @@ public class AsyncSendTimeTask extends AsyncTask<Void, Integer, Boolean>{
             DataOutputStream dataOutputStream = null;
             try {
                 socket = new Socket(peer, PORT);
+                socket.setTcpNoDelay(true);
                 dataOutputStream = new DataOutputStream(socket.getOutputStream());
                 dataOutputStream.writeInt(RequestHandler.SYNC_TIME);
-                dataOutputStream.writeLong(this.scheduleTime + delay*count);
+                dataOutputStream.writeLong(5000 - delay*count);
                 dataOutputStream.flush();
 
                 Log.i(TAG, "Write complete for peer " + peer);

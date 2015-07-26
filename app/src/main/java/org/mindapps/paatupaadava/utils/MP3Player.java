@@ -42,18 +42,10 @@ public class MP3Player {
     }
 
 
-
-
     public void stopSongIfAnyPlaying() {
         Log.i(TAG, "Stopping song");
-
-        if(mediaPlayer != null) {
-
-            mediaPlayer.stop();
-            mediaPlayer.reset();
-            mediaPlayer.release();
-            Log.i(TAG, "Released resources");
-        }
-
+        if(mediaPlayer != null) mediaPlayer.release();
+        Log.i(TAG, "Released resources");
     }
+
 }

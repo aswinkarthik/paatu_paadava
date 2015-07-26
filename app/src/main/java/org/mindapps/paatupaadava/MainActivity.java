@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import org.mindapps.paatupaadava.p2p.WifiBroadcastReceiver;
 import org.mindapps.paatupaadava.server.Server;
@@ -58,6 +59,8 @@ public class MainActivity extends Activity implements ChannelListener {
     private Server sever;
     private Set<String> clientIpPool;
 
+    private TextView textView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +75,8 @@ public class MainActivity extends Activity implements ChannelListener {
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 
+        textView = (TextView) findViewById(R.id.textViewThatWeDisplay);
+
         manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         channel = manager.initialize(this, getMainLooper(), null);
 
@@ -80,6 +85,10 @@ public class MainActivity extends Activity implements ChannelListener {
         sever = new Server(this);
         clientIpPool = new HashSet<>();
         sever.executeOnExecutor(THREAD_POOL_EXECUTOR);
+    }
+
+    public void setTextView(String text) {
+        textView.setText(text);
     }
 
     @Override
@@ -162,6 +171,7 @@ public class MainActivity extends Activity implements ChannelListener {
     }
 
     public void setDownloadedSong(File downloadedSong) {
+        if(this.downloadedSong != null) this.downloadedSong.delete();
         this.downloadedSong = downloadedSong;
     }
 
@@ -203,6 +213,6 @@ public class MainActivity extends Activity implements ChannelListener {
                     e.printStackTrace();
                 }
             }
-        }, scheduledTime - (new Date()).getTime(), TimeUnit.MILLISECONDS);
+        }, scheduledTime, TimeUnit.MILLISECONDS);
     }
 }
