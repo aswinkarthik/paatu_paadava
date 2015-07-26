@@ -16,16 +16,17 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
 
     private WifiP2pManager manager;
     private final WifiP2pManager.Channel channel;
-    private PeerListListener networkAdapter = new NetworkAdapter();
+    private PeerListListener networkAdapter;
     private NetworkInfo networkInfo;
 
     public boolean isConnected() {
         return networkInfo.isConnected();
     }
 
-    public WifiBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel) {
+    public WifiBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, NetworkAdapter networkAdapter) {
         this.manager = manager;
         this.channel = channel;
+        this.networkAdapter = networkAdapter;
     }
 
     @Override
@@ -38,7 +39,7 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
                 break;
             case WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION:
                 if (manager != null) {
-                    Log.i(TAG, "P2P Change Happened");
+                    Log.i(TAG, "P2P Change Happened. Requesting peers");
                     manager.requestPeers(channel, networkAdapter);
                 }
                 break;

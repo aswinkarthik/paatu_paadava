@@ -1,6 +1,5 @@
 package org.mindapps.paatupaadava.utils;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.database.Cursor;
@@ -15,12 +14,10 @@ import android.util.Log;
 import org.mindapps.paatupaadava.async.AsyncSendFileTask;
 
 import java.io.BufferedInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +42,8 @@ public class NetworkAdapter implements WifiP2pManager.PeerListListener {
             bufferedInputStream.read(songBytes);
             bufferedInputStream.close();
 
-            new AsyncSendFileTask(songBytes, context).execute( peers);
+            Log.i(TAG, "Triggering async task with peer size " + peers.size());
+            new AsyncSendFileTask(songBytes, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,new ArrayList<>(peers));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

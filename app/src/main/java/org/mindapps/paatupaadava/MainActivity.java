@@ -4,10 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -15,10 +15,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.mindapps.paatupaadava.server.Server;
 import org.mindapps.paatupaadava.utils.MP3Player;
 import org.mindapps.paatupaadava.utils.NetworkAdapter;
 
+import java.io.File;
+
 import static android.content.Intent.ACTION_PICK;
+import static android.os.AsyncTask.THREAD_POOL_EXECUTOR;
 import static android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
 
@@ -31,17 +35,19 @@ public class MainActivity extends Activity implements ChannelListener {
     // Related to p2p connections
     private WifiBroadcastReceiver receiver;
     private WifiP2pManager manager;
+
+    //File downloaded
+    private File downloadedSong;
+
+
     private Channel channel;
-
-    //Models & Datastore for this activity
-    private Uri selectedSong = null;
-
     //Utils
     private MP3Player player;
-    private NetworkAdapter networkAdapter;
 
+    private NetworkAdapter networkAdapter;
     //Logging
     private final String TAG = this.getClass().getName();
+    private Server sever;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +68,15 @@ public class MainActivity extends Activity implements ChannelListener {
 
         player = new MP3Player();
         networkAdapter = new NetworkAdapter();
+        sever = new Server(this);
+        sever.executeOnExecutor(THREAD_POOL_EXECUTOR);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        receiver = new WifiBroadcastReceiver(manager, channel);
+        if(receiver == null)
+            receiver = new WifiBroadcastReceiver(manager, channel, networkAdapter);
 
         registerReceiver(receiver, intentFilter);
     }
@@ -121,8 +130,6 @@ public class MainActivity extends Activity implements ChannelListener {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case SELECT_SONG_REQUEST_CODE:
-                    this.selectedSong = data.getData();
-                    Log.i(TAG, "Song file path " + selectedSong.getPath());
                     networkAdapter.sendFileToPeers(MainActivity.this, data.getData());
                     break;
             }
@@ -134,5 +141,23 @@ public class MainActivity extends Activity implements ChannelListener {
     public void scheduleStop(View view) {
         Log.i(TAG, "scheduling stop");
         player.stopSongIfAnyPlaying();
+    }
+
+    public void setDownloadedSong(File downloadedSong) {
+        this.downloadedSong = downloadedSong;
+    }
+
+    public void discoverPeers(View view) {
+        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Log.i(TAG, "Peer discovery successful. List will refresh in a moment");
+            }
+
+            @Override
+            public void onFailure(int reasonCode) {
+                Log.i(TAG, "Failed to discover. Try again.");
+            }
+        });
     }
 }

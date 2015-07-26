@@ -3,23 +3,33 @@ package org.mindapps.paatupaadava.server;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.mindapps.paatupaadava.MainActivity;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class BroadcastServer extends AsyncTask<Void, Void, Void> {
-    public static int PORT = 7778;
+public class Server extends AsyncTask<Void, Void, Void> {
+    public static int PORT = 7779;
+    private final MainActivity activity;
     private ServerSocket serverSocket;
     private String TAG = this.getClass().getName();
+
+    public Server(MainActivity activity) {
+        this.activity = activity;
+    }
 
     @Override
     protected Void doInBackground(Void[] params) {
         try {
-            Log.i("Server", "Server socket created");
-            serverSocket = new ServerSocket(PORT);
+            Log.i(TAG, "Creating ServerSocket");
+            if(serverSocket == null) {
+                serverSocket = new ServerSocket(PORT);
+            }
+            Log.i(TAG, "Waiting for requests");
             do {
                 Socket newClient = serverSocket.accept();
-                new RequestHandler(newClient).run();
+                new RequestHandler(newClient, activity).run();
             } while (true);
         } catch (IOException e) {
             e.printStackTrace();

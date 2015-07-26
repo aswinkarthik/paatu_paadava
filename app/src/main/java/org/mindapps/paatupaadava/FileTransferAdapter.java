@@ -4,7 +4,7 @@ import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
 
-import org.mindapps.paatupaadava.server.BroadcastServer;
+import org.mindapps.paatupaadava.server.Server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 public class FileTransferAdapter implements WifiP2pManager.ConnectionInfoListener {
-    private int PORT = 7711;
     private Socket socket;
 
     @Override
@@ -20,13 +19,13 @@ public class FileTransferAdapter implements WifiP2pManager.ConnectionInfoListene
         String hostAddress = info.groupOwnerAddress.getHostAddress();
         Log.i("Group-owner","Grp formed "+info.groupFormed+" Grp owner "+info.isGroupOwner+" Address "+hostAddress);
         if( info.isGroupOwner && info.groupFormed ) { //server
-            new BroadcastServer().execute();
+
         } else if ( info.groupFormed) { //client
             try {
                 Log.i("Client","Client socket created");
-                Log.i("Client","Host address "+hostAddress+" port "+PORT);
+                Log.i("Client","Host address "+hostAddress+" port "+ Server.PORT);
 
-                socket = new Socket(hostAddress, PORT);
+                socket = new Socket(hostAddress, Server.PORT);
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
                 String line = bufferedReader.readLine();

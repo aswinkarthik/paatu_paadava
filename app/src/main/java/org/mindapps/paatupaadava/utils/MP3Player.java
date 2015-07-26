@@ -4,8 +4,10 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 
 public class MP3Player {
@@ -25,6 +27,22 @@ public class MP3Player {
         mediaPlayer.start();
         Log.i(TAG, "Started playing");
     }
+
+
+    public void playSong(File song) throws IOException {
+
+        Log.i(TAG, "Playing song with path" + song.getPath());
+
+        this.mediaPlayer = new MediaPlayer();
+        Log.i(TAG, "Creating player");
+        mediaPlayer.setDataSource(song.getAbsolutePath());
+        mediaPlayer.prepare();
+        mediaPlayer.start();
+        Log.i(TAG, "Started playing");
+    }
+
+
+
 
     public void stopSongIfAnyPlaying() {
         Log.i(TAG, "Stopping song");
