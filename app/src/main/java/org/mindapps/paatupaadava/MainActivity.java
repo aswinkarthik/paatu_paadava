@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -20,6 +19,13 @@ import org.mindapps.paatupaadava.utils.MP3Player;
 import org.mindapps.paatupaadava.utils.NetworkAdapter;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import static android.content.Intent.ACTION_PICK;
 import static android.os.AsyncTask.THREAD_POOL_EXECUTOR;
@@ -48,6 +54,7 @@ public class MainActivity extends Activity implements ChannelListener {
     //Logging
     private final String TAG = this.getClass().getName();
     private Server sever;
+    private Set<String> clientIpPool;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +76,7 @@ public class MainActivity extends Activity implements ChannelListener {
         player = new MP3Player();
         networkAdapter = new NetworkAdapter();
         sever = new Server(this);
+        clientIpPool = new HashSet<>();
         sever.executeOnExecutor(THREAD_POOL_EXECUTOR);
     }
 
@@ -76,7 +84,7 @@ public class MainActivity extends Activity implements ChannelListener {
     protected void onResume() {
         super.onResume();
         if(receiver == null)
-            receiver = new WifiBroadcastReceiver(manager, channel, networkAdapter);
+            receiver = new WifiBroadcastReceiver(manager, channel, networkAdapter, MainActivity.this);
 
         registerReceiver(receiver, intentFilter);
     }
@@ -130,7 +138,7 @@ public class MainActivity extends Activity implements ChannelListener {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case SELECT_SONG_REQUEST_CODE:
-                    networkAdapter.sendFileToPeers(MainActivity.this, data.getData());
+                    networkAdapter.sendFileToPeers(MainActivity.this, data.getData(), this.getClientIpPoolsIterator());
                     break;
             }
         }
@@ -159,5 +167,16 @@ public class MainActivity extends Activity implements ChannelListener {
                 Log.i(TAG, "Failed to discover. Try again.");
             }
         });
+    }
+
+    //For client IP pools
+    synchronized public void addToClientIpPool(String ipAddress) {
+        this.clientIpPool.add(ipAddress);
+        Log.i(TAG, "Added to list " + clientIpPool);
+    }
+
+    //Get all ips
+    synchronized public Iterator<String> getClientIpPoolsIterator(){
+        return clientIpPool.iterator();
     }
 }

@@ -25,6 +25,7 @@ public class Server extends AsyncTask<Void, Void, Void> {
             Log.i(TAG, "Creating ServerSocket");
             if(serverSocket == null) {
                 serverSocket = new ServerSocket(PORT);
+                Log.i(TAG, "Created at port " + PORT);
             }
             Log.i(TAG, "Waiting for requests");
             do {

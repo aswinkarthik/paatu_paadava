@@ -1,5 +1,6 @@
 package org.mindapps.paatupaadava;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
 
+import org.mindapps.paatupaadava.p2p.IpDiscovery;
 import org.mindapps.paatupaadava.utils.NetworkAdapter;
 
 public class WifiBroadcastReceiver extends BroadcastReceiver {
@@ -18,15 +20,13 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
     private final WifiP2pManager.Channel channel;
     private PeerListListener networkAdapter;
     private NetworkInfo networkInfo;
+    private IpDiscovery ipDiscovery;
 
-    public boolean isConnected() {
-        return networkInfo.isConnected();
-    }
-
-    public WifiBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, NetworkAdapter networkAdapter) {
+    public WifiBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, NetworkAdapter networkAdapter, Activity activity) {
         this.manager = manager;
         this.channel = channel;
         this.networkAdapter = networkAdapter;
+        ipDiscovery = new IpDiscovery(activity);
     }
 
     @Override
@@ -49,6 +49,9 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
                 if (manager != null) {
                     this.networkInfo = intent
                             .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+                    if(networkInfo.isConnected()) {
+                        manager.requestConnectionInfo(channel, ipDiscovery);
+                    }
                 }
 
                 break;

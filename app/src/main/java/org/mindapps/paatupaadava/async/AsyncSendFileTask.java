@@ -2,28 +2,31 @@ package org.mindapps.paatupaadava.async;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import org.mindapps.paatupaadava.server.RequestHandler;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.List;
+import java.util.Iterator;
 
-import static org.mindapps.paatupaadava.utils.NetworkAdapter.PORT;
+import static org.mindapps.paatupaadava.server.Server.PORT;
 
-public class AsyncSendFileTask extends AsyncTask<List<WifiP2pDevice>, Integer, Boolean> {
+public class AsyncSendFileTask extends AsyncTask<Void, Integer, Boolean> {
 
     private final String TAG = this.getClass().getName();
 
     private final byte[] data;
+    private Iterator<String> clientIpPoolIterator;
     private ProgressDialog dialog;
 
-    public AsyncSendFileTask(byte[] data, Context context) {
+    public AsyncSendFileTask(byte[] data, Context context, Iterator<String> clientIpPoolsIterator) {
         this.data = data;
+        clientIpPoolIterator = clientIpPoolsIterator;
         this.dialog = new ProgressDialog(context);
     }
 
@@ -34,42 +37,22 @@ public class AsyncSendFileTask extends AsyncTask<List<WifiP2pDevice>, Integer, B
     }
 
     @Override
-    protected Boolean doInBackground(List<WifiP2pDevice>... peers) {
-        Log.i(TAG, "Doing in background for peers");
+    protected Boolean doInBackground(Void... params) {
+        Log.i(TAG, "Doing in background for peers iterator ");
 
-        if (peers.length == 0) {
-            Log.e(TAG, "Something is definitely wrong");
-            return false;
-        }
-
-        if (peers[0].size() == 0) {
-            Log.e(TAG, "No peers found");
-            return false;
-        }
-
-
-
-        Log.i(TAG, "What else is cooking " + peers.length);
-
-
-        for (WifiP2pDevice peer : peers[0]) {
-            String ipFromMac = getIPFromMac(peer.deviceAddress);
-            Log.i(TAG, "Looping Getting IP from ARP" + ipFromMac);
-        }
-
-        for (WifiP2pDevice peer : peers[0]) {
-            Log.i(TAG, "Selected peer " + peer + " InetAddress " + peer.deviceAddress);
-            String ipFromMac = getIPFromMac(peer.deviceAddress);
-            Log.i(TAG, "Getting IP from ARP" + ipFromMac);
+        while ( clientIpPoolIterator.hasNext()) {
+            String peer = clientIpPoolIterator.next();
+            Log.i(TAG, "Selected peer " + peer);
             Socket socket = null;
             try {
-                socket = new Socket(ipFromMac, PORT);
+                socket = new Socket(peer, PORT);
                 DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                dataOutputStream.writeInt(RequestHandler.INCOMING_FILE);
                 dataOutputStream.writeInt(data.length);
                 dataOutputStream.write(data);
                 dataOutputStream.flush();
 
-                Log.i(TAG, "Write complete for peer " + ipFromMac);
+                Log.i(TAG, "Write complete for peer " + peer);
 
                 dataOutputStream.close();
             } catch (IOException e) {

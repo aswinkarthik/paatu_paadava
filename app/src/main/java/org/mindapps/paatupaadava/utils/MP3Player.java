@@ -35,6 +35,7 @@ public class MP3Player {
 
         this.mediaPlayer = new MediaPlayer();
         Log.i(TAG, "Creating player");
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaPlayer.setDataSource(song.getAbsolutePath());
         mediaPlayer.prepare();
         mediaPlayer.start();

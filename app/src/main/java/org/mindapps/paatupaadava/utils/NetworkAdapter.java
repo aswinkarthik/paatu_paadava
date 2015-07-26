@@ -19,16 +19,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class NetworkAdapter implements WifiP2pManager.PeerListListener {
 
-    public static final Integer PORT = 7778;
     private final String TAG = this.getClass().getName();
     private final List<WifiP2pDevice> peers = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
-    public void sendFileToPeers(Context context, Uri song) {
+    public void sendFileToPeers(Context context, Uri song, Iterator<String> clientIpPoolsIterator) {
         Log.i(TAG, "Sending files to peers");
 
         String path = getPath(context, song);
@@ -43,7 +43,7 @@ public class NetworkAdapter implements WifiP2pManager.PeerListListener {
             bufferedInputStream.close();
 
             Log.i(TAG, "Triggering async task with peer size " + peers.size());
-            new AsyncSendFileTask(songBytes, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,new ArrayList<>(peers));
+            new AsyncSendFileTask(songBytes, context,clientIpPoolsIterator).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
