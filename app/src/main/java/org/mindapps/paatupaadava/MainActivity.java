@@ -191,6 +191,7 @@ public class MainActivity extends Activity implements ChannelListener {
     }
 
     public void scheduleSong(long scheduledTime) {
+        player.stopSongIfAnyPlaying();
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         Log.i(TAG, "Scheduling song");
         scheduler.schedule(new Runnable() {

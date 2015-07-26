@@ -4,7 +4,6 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
@@ -50,8 +49,8 @@ public class MP3Player {
 
         if(mediaPlayer != null) {
 
-            if(mediaPlayer.isPlaying()) mediaPlayer.stop();
-
+            mediaPlayer.stop();
+            mediaPlayer.reset();
             mediaPlayer.release();
             Log.i(TAG, "Released resources");
         }
